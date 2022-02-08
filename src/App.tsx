@@ -9,7 +9,6 @@ export default function App() {
   const [lng, setLng] = useState(25.2792);
   const [lat, setLat] = useState(54.682);
   const [zoom, setZoom] = useState(12);
-  // const [mapFeatures, setMapFeatures] = useState([]);
 
   const [geojson, setGeoJson]: any = useState({
     type: "FeatureCollection",
