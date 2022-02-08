@@ -9,6 +9,7 @@ export default function App() {
   const [lng, setLng] = useState(25.2792);
   const [lat, setLat] = useState(54.682);
   const [zoom, setZoom] = useState(12);
+  // const [mapFeatures, setMapFeatures] = useState([]);
 
   const [geojson, setGeoJson]: any = useState({
     type: "FeatureCollection",
@@ -71,12 +72,7 @@ export default function App() {
         filter: ["in", "$type", "LineString"],
       });
 
-      map.current.on("click", (e: any) => {
-        handleClick(e);
-      });
-
       map.current.on("mousemove", (e: any) => {
-        console.log(map.current.layers);
         const features = map.current.queryRenderedFeatures(e.point, {
           layers: ["measure-points"],
         });
@@ -86,6 +82,9 @@ export default function App() {
           ? "pointer"
           : "crosshair";
       });
+    });
+    map.current.on("click", (e: any) => {
+      handleClick(e);
     });
   });
 
@@ -98,10 +97,9 @@ export default function App() {
     // so we can redraw it based on the points collection.
     if (geojson.features.length > 1) {
       setGeoJson((prev: any) => {
-        const newFeatures = prev.filter(
+        const newFeatures = prev.features.filter(
           (f: any, i: number) => f[i + 1] !== f.length
         );
-        console.log(newFeatures);
         return {
           ...prev,
           features: newFeatures,
@@ -135,21 +133,21 @@ export default function App() {
         },
       };
 
-      // geojson.features.push(point);
       setGeoJson((prev: any) => {
         return {
           ...prev,
           features: [...prev.features, point],
         };
       });
-      // geojson.features.push(point);
     }
 
     if (geojson.features.length > 1) {
       setLinestring((prev: any) => {
-        const coord = geojson.features.map(
-          (point: any) => point.geometry.coordinates
-        );
+        const coord = geojson.features.filter((point: any) => {
+          if (point.geometry.coordinates.length !== 0) {
+            return point.geometry.coordinates;
+          }
+        });
         return {
           ...prev,
           geometry: {
@@ -158,6 +156,11 @@ export default function App() {
           },
         };
       });
+
+      const value = document.createElement("pre");
+      const distance = turf.length(linestring);
+      value.textContent = `Total distance: ${distance.toLocaleString()}km`;
+      distanceContainer.current.appendChild(value);
 
       setGeoJson((prev: any) => {
         return {
@@ -168,16 +171,6 @@ export default function App() {
     }
     map.current.getSource("geojson").setData(geojson);
   };
-
-  useEffect(() => {
-    // Populate the distanceContainer with total distance
-    if (geojson.features.length > 1) {
-      const value = document.createElement("pre");
-      const distance = turf.length(linestring);
-      value.textContent = `Total distance: ${distance.toLocaleString()}km`;
-      distanceContainer.current.appendChild(value);
-    }
-  }, [geojson.features.length]);
 
   return (
     <div>
