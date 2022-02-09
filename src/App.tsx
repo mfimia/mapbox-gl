@@ -31,7 +31,8 @@ export default function App() {
   return (
     <div>
       <div className="sidebar">
-        Longitude: {lng.toFixed(2)} | Latitude: {lat.toFixed(2)} | Zoom: {zoom}
+        Longitude: {lng.toFixed(4)} | Latitude: {lat.toFixed(4)} | Zoom:{" "}
+        {zoom.toFixed(2)}
       </div>
       <div ref={mapContainer} className="map-container" />
     </div>
